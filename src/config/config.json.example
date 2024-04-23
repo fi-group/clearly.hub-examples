@@ -1,0 +1,26 @@
+{
+  "api": {
+    "endpoint": "https://hub.clearly.app/api"
+  },
+  "cognito": {
+    "userPoolId": "REQUEST FROM FI",
+    "userPoolClientId": "REQUEST FROM FI",
+    "loginWith": {
+      "oauth": {
+        "domain": "REQUEST FROM FI",
+        "scopes": [
+          "email",
+          "openid",
+          "profile"
+        ],
+        "redirectSignIn": [
+          "http://localhost:5173/"
+        ],
+        "redirectSignOut": [
+          "http://localhost:5173/"
+        ],
+        "responseType": "code"
+      }
+    }
+  }
+}
