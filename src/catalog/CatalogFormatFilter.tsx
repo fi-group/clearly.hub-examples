@@ -26,7 +26,7 @@ const CatalogFormatFilter = ({
 
   React.useEffect(() => {
     void (async () => {
-      const response = await fetch(`${config.api.endpoint}/dataset-resource-formats`);
+      const response = await fetch(`${config.api.endpoints.openApi}/dataset-resource-formats`);
       const json = await response.json();
       const resourceFormats = json.results
         .map((result: ResourceFormat) => result.title)

@@ -5,25 +5,8 @@ import {
   RouterProvider,
 } from 'react-router-dom';
 
-import Home from './Home.tsx'
-import { AuthHostedUiExample } from './auth/index.ts';
-import { CatalogExample } from './catalog/index.ts';
-
 import './main.css';
-
-export const routes = [{
-  path: '/',
-  name: 'Home',
-  element: <Home />,
-}, {
-  path: '/auth-hosted-ui',
-  name: 'Authentication (Hosted UI)',
-  element: <AuthHostedUiExample />
-}, {
-  path: '/catalog',
-  name: 'Catalog',
-  element: <CatalogExample />,
-}];
+import { routes } from './routes';
 
 const router = createBrowserRouter(routes);
 

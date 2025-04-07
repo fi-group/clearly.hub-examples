@@ -1,8 +1,11 @@
-import config from './config.json';
+import config from './config.json'
 
 interface Config {
   api: {
-    endpoint: string;
+    endpoints: {
+      openApi: string;
+      graphql: string;
+    }
   }
   cognito: {
     userPoolId: string;

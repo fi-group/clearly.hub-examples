@@ -59,7 +59,7 @@ const Auth = () => {
     const payload = currentSession?.tokens?.idToken?.payload;
     return authenticated
       ? `${payload?.name} <${payload?.email}`
-      : '';
+      : 'Click the button to sign in...';
   };
 
   return (

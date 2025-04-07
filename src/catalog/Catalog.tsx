@@ -53,7 +53,7 @@ const Catalog = () => {
       setLoading(true);
       const query = { formats };
 
-      const url = new URL(config.api.endpoint + '/datasets');
+      const url = new URL(config.api.endpoints.openApi + '/datasets');
       url.searchParams.append('limit', limit.toString());
       url.searchParams.append('search', search);
       url.searchParams.append('sort', sort);
@@ -64,13 +64,12 @@ const Catalog = () => {
         Authorization: session.tokens?.accessToken?.toString() ?? '',
       };
 
-      fetch(url.toString(), {
+      const response = await fetch(url.toString(), {
         headers,
-      }).then(async (response) => {
-        const json = await response.json();
-        setSearchResults(json);
-        setLoading(false);
       });
+      const json = await response.json();
+      setSearchResults(json.results ? json : { totalCount: 0, results: [] });
+      setLoading(false);
     })()
   }, [formats, limit, search, sort]);
 

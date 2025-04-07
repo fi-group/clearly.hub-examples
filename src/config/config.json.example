@@ -1,13 +1,16 @@
 {
   "api": {
-    "endpoint": "https://hub.clearly.app/api"
+    "endpoints": {
+      "openApi": "https://hub.clearly.app/api",
+      "graphql": "https://hub.clearly.app/graphql"
+    }
   },
   "cognito": {
-    "userPoolId": "REQUEST FROM FI",
-    "userPoolClientId": "REQUEST FROM FI",
+    "userPoolId": "eu-central-1_1fM1Zd9mJ",
+    "userPoolClientId": "SEE: README.MD",
     "loginWith": {
       "oauth": {
-        "domain": "REQUEST FROM FI",
+        "domain": "auth.clearly.app",
         "scopes": [
           "email",
           "openid",

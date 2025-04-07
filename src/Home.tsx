@@ -1,5 +1,5 @@
 import React from 'react';
-import { routes } from './main';
+import { routes } from './routes';
 import {
   List,
   ListItem,
