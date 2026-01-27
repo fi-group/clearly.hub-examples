@@ -5,6 +5,9 @@
       "graphql": "https://hub.clearly.app/graphql"
     }
   },
+  "components": {
+    "url": "https://hub.clearly.app/components"
+  },
   "cognito": {
     "userPoolId": "eu-central-1_1fM1Zd9mJ",
     "userPoolClientId": "SEE: README.MD",
@@ -17,10 +20,10 @@
           "profile"
         ],
         "redirectSignIn": [
-          "http://localhost:5173/"
+          "http://localhost:5173"
         ],
         "redirectSignOut": [
-          "http://localhost:5173/"
+          "http://localhost:5173"
         ],
         "responseType": "code"
       }

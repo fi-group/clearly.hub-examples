@@ -6,7 +6,10 @@ interface Config {
       openApi: string;
       graphql: string;
     }
-  }
+  };
+  components: {
+    url: string;
+  },
   cognito: {
     userPoolId: string;
     userPoolClientId: string;
