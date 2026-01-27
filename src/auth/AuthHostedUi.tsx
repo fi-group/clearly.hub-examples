@@ -58,7 +58,13 @@ const Auth = () => {
   const getGreeting = () => {
     const payload = currentSession?.tokens?.idToken?.payload;
     return authenticated
-      ? `${payload?.name} <${payload?.email}`
+      ? (
+        <div>
+          {String(payload?.name)} ({String(payload?.email)})
+          <br />
+          Click the button to sign out.
+        </div>
+      )
       : 'Click the button to sign in...';
   };
 
