@@ -1,0 +1,5 @@
+const config = {
+  componentUrl: 'https://hub.clearly.app/components',
+  clientId: 'see README.md',
+  param: 'componentresult',
+};

@@ -7,6 +7,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc && vite build",
+    "basic": "serve ./basic",
     "dev": "vite",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
@@ -30,6 +31,7 @@
     "eslint": "^9.24.0",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.6",
+    "serve": "^14.2.5",
     "typescript": "^5.2.2",
     "vite": "^7.1.1"
   }

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clearly.HUB Sign out</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="./config.js"></script>
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const payload = urlParams.get('payload'); // payload for the Clearly.Hub component
+    const result = urlParams.get(config.param); // result from the Clearly.Hub component
+
+    // if we have a result, we're returning from the component.
+    // parse the result and log it::
+    if (!!result) {
+      const data = JSON.parse(atob(result));
+      console.log(data);
+      alert('Received data from component: check the console for details.');
+
+      // cleanup:: 
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    const signOut = () => {
+      const payload = btoa(JSON.stringify({
+        actions: ['LOGOUT'],
+        origin: location.href,
+        client_id: config.clientId,
+        param: config.param,
+      }));
+
+      // redirect to the component::
+      window.open(`${config.componentUrl}/${payload}`, '_self');
+    };
+  </script>
+</head>
+
+<body>
+  <div class="box">
+    <a href="index.html">Home</a>
+    <br />
+    <button id="signout" onClick="signOut()">Sign out</button>
+  </div>
+</body>
+
+</html>

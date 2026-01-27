@@ -26,3 +26,4 @@ dist-ssr
 
 # no configuration files
 config.json
+config.js

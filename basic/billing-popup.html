@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clearly.HUB Billing Component</title>
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="./config.js"></script>
+  <script>
+    // create a channel, in the popup to send messages,
+    // in the main window to receive messages::
+    const bc = new BroadcastChannel('clearly-hub-components');
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const payload = urlParams.get('payload'); // payload for the Clearly.Hub component
+    const result = urlParams.get(config.param); // result from the Clearly.Hub component
+
+    // if we have a payload, we're in the popup version of this page.
+    // we need to forward to the components page:
+    if (!!payload) {
+      window.open(`${config.componentUrl}/${payload}`, '_self');
+    }
+
+    // if we have a result, we're in the popup returning from the component.
+    // we need to send the result back to the main window:
+    else if (!!result) {
+      const data = JSON.parse(atob(result));
+      bc.postMessage(data);
+      window.close();
+    }
+
+    // else, we're in the main window. we're just going to listen for
+    // messages from the popup:
+    else {
+      // we're not in the popup, but in the main window.
+      // stand by to receive messages from the component::
+      bc.onmessage = (event) => {
+        const { data } = event;
+        console.log(data);
+        alert('Received data from component: check the console for details.');
+      };
+    }
+
+    const selectSubscription = () => {
+      const data = btoa(JSON.stringify({
+        actions: ['SELECT_SUBSCRIPTION'],
+        origin: location.href,
+        client_id: config.clientId,
+        param: config.param,
+      }));
+
+      // open _this_ page in a popup window
+      // and pass the payload as a query parameter::
+      window.open(
+        `?payload=${data}`,
+        'hub-components',
+        'width=400,height=600',
+      );
+    };
+  </script>
+</head>
+
+<body>
+  <div class="box">
+    <a href="index.html">Home</a>
+    <br />
+    <button onClick="selectSubscription()">Select subscription</button>
+  </div>
+</body>
+
+</html>

@@ -12,13 +12,19 @@ git clone https://github.com/fi-group/clearly.hub-examples
 $ npm install
 ```
 
-Copy the example config `src/config/config.json.example` to `src/config/config.json` and run the application:
+Copy/rename the example config `src/config/config.json.example` to `src/config/config.json` and run the application:
 
 ```sh
 $ npm run dev
 ```
-
 A webserver will now be running on [http://localhost:5173](http://localhost:5173)
+
+
+Copy/rename the example config `basic/config.js.example` to `basic/config.js` and run the basic examples:
+```sh
+$ npm run basic
+```
+A webserver will now be running on [http://localhost:3000](http://localhost:3000)
 
 ## Available examples
 
@@ -42,6 +48,10 @@ Steps to get this working:
 
 Mind you; the signIn and signOut urls are taken verbatim. So `http://localhost:5173` differs from `http://localhost:5173/`. Urls should also be served over https. The only exception is localhost.
 
+### Basic html/js
+In the folder ./basic some plain html/js examples are given for the clearly-hub components. These can be started by running `npm run basic` and navigating to the url shown in the cmd window. For this a clientId has to be filled in config.js (copy/rename config.js.example to config.js in the folder ./basic and fill in the clientId).
+
+In a real scenario of course, the components should only be used by someone who is signed into the calling application (see: *Authentication* below). Signing into the components is separate from signing into the calling application...
 
 ### Authentication (hosted UI)
 
