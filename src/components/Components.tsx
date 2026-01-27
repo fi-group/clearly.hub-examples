@@ -24,7 +24,7 @@ const ComponentsExample = () => {
   const handleSelectSubscription = () => {
     const payload = btoa(JSON.stringify({
       actions: ['SELECT_SUBSCRIPTION'],
-      origin: 'http://localhost:5173/components',
+      origin: location.href,
       client_id: config.cognito.userPoolClientId,
     }));
     window.open(`${config.components.url}/${payload}`, '_self')
@@ -33,12 +33,12 @@ const ComponentsExample = () => {
   const handleRegisterData = () => {
     const payload = btoa(JSON.stringify({
       actions: ['REGISTER_RESOURCE'],
-      origin: 'http://localhost:5173/components',
+      origin: location.href,
       client_id: config.cognito.userPoolClientId,
       data: {
         url: 'https://some.link.to/3d-tiles/tileset.json',
-        format: '3dtiles'
-      }
+        format: '3dtiles',
+      },
     }));
     window.open(`${config.components.url}/${payload}`, '_self')
   };
@@ -47,7 +47,7 @@ const ComponentsExample = () => {
   const handleSignOut = () => {
     const payload = btoa(JSON.stringify({
       actions: ['LOGOUT'],
-      origin: 'http://localhost:5173/components',
+      origin: location.href,
       client_id: config.cognito.userPoolClientId,
     }));
     window.open(`${config.components.url}/${payload}`, '_self')
