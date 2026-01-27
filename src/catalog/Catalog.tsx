@@ -8,6 +8,7 @@ import {
   ListItemText,
   ListSubheader,
   Paper,
+  Pagination
 } from '@mui/material';
 import { fetchAuthSession } from 'aws-amplify/auth';
 
@@ -42,11 +43,26 @@ const Catalog = () => {
   const [formats, setFormats] = React.useState<string[]>([]);
   const [limit, setLimit] = React.useState<number>(10);
   const [sort, setSort] = React.useState<string>('title');
+  const [page, setPage] = React.useState<number>(1);
+
 
   const [searchResults, setSearchResults] = React.useState<CatalogSearchResults>({
     totalCount: 0,
     results: [],
   });
+
+
+  const handleNextPage = () => {
+    if ((page * limit) < searchResults.totalCount) {
+      setPage(page + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (page > 1) {
+      setPage(page - 1);
+    }
+  };
 
   React.useEffect(() => {
     void (async () => {
@@ -58,6 +74,9 @@ const Catalog = () => {
       url.searchParams.append('search', search);
       url.searchParams.append('sort', sort);
       url.searchParams.append('query', JSON.stringify(query));
+      // Add offset for paging
+      const offset = (page - 1) * limit;
+      url.searchParams.append('offset', offset.toString());
 
       const session = await fetchAuthSession();
       const headers = {
@@ -71,11 +90,11 @@ const Catalog = () => {
       setSearchResults(json.results ? json : { totalCount: 0, results: [] });
       setLoading(false);
     })()
-  }, [formats, limit, search, sort]);
+  }, [formats, limit, search, sort, page]);
 
   return (
-    <Paper elevation={3} sx={{ width: '80%', maxHeight: '100%' }}>
-      <Box display="flex" flexDirection="row" sx={{ height: '80vh' }}>
+    <Paper elevation={3}>
+      <Box display="flex" flexDirection="row">
         <Box flex={0} sx={{ width: 300 }}>
           <List>
             <ListItem>
@@ -92,7 +111,9 @@ const Catalog = () => {
             </ListItem>
           </List>
         </Box>
-        <Box><Divider orientation="vertical" /></Box>
+        <Box>
+          <Divider orientation="vertical" />
+        </Box>
         <Box display="flex" flex={1} sx={{ p: 1 }}>
           {loading
             ? (<Box flex={1} display="flex" justifyContent="center" alignItems="center" >
@@ -114,6 +135,17 @@ const Catalog = () => {
                   </ListItem>
                 ))}
               </List>
+              {/* Paging controls using MUI Pagination */}
+              <Box display="flex" justifyContent="center" alignItems="center" sx={{ mt: 2 }}>
+                <Pagination
+                  count={Math.max(1, Math.ceil(searchResults.totalCount / limit))}
+                  page={page}
+                  onChange={(_event, value) => setPage(value)}
+                  color="primary"
+                  showFirstButton
+                  showLastButton
+                />
+              </Box>
             </Box>)}
         </Box>
       </Box>
