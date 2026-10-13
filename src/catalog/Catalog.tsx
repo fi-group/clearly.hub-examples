@@ -51,19 +51,6 @@ const Catalog = () => {
     results: [],
   });
 
-
-  const handleNextPage = () => {
-    if ((page * limit) < searchResults.totalCount) {
-      setPage(page + 1);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (page > 1) {
-      setPage(page - 1);
-    }
-  };
-
   React.useEffect(() => {
     void (async () => {
       setLoading(true);

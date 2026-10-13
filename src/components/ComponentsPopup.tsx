@@ -1,6 +1,15 @@
-import { Paper, List, ListItemText, ListItemButton, Snackbar, Divider } from "@mui/material";
-import config from "../config";
+import { Paper, List, ListItemText, ListItemButton, Snackbar } from "@mui/material";
+import config, { isClientIdConfigured } from "../config";
 import React from "react";
+import {
+  ComponentAction,
+  RawComponentResult,
+  checkComponentResult,
+  createComponentRequest,
+  encodeComponentRequest,
+  readComponentResult,
+  summarizeComponentResult,
+} from "./componentsHelper";
 
 // param name that will be passed back from the component to the popup
 // defaults to 'data'::
@@ -10,77 +19,71 @@ const ComponentsExample = () => {
   // broadcast channel to communicate between popup and main window::
   const [bc] = React.useState(() => new BroadcastChannel('clearly-hub-components'));
 
-  // result from the component popup
-  const [result, setResult] = React.useState<any>();
+  // summary of the checked result from the component popup
+  const [summary, setSummary] = React.useState<string>();
 
   React.useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const payload = urlParams.get('payload');
-    const result = urlParams.get(resultParam);
-    
+    const componentResult = readComponentResult(urlParams, resultParam);
+
     // if we have a payload, we're in the popup version of this page.
     // we need to forward to the components page:
-    if (!!payload) {
+    if (payload) {
       window.open(`${config.components.url}/${payload}`, '_self');
     }
-    
+
     // if we have a result, we're in the popup returning from the component.
-    // we need to send the result back to the main window:
-    else if (!!result) {
-      const data = JSON.parse(atob(result));
-      bc.postMessage(data);
+    // we need to send the result back to the main window, which checks it:
+    else if (componentResult) {
+      bc.postMessage(componentResult);
       window.close();
     }
 
     // else, we're in the main window. we're just going to listen for
     // messages from the popup:
     else {
-      bc.onmessage = (event) => {
-        const { data } = event;
-        setResult(data);
+      bc.onmessage = (event: MessageEvent<RawComponentResult>) => {
+        void checkComponentResult(event.data).then((checked) => {
+          console.log('Component result:', checked);
+          setSummary(summarizeComponentResult(checked));
+        });
       }
     }
-  }, []);
+  }, [bc]);
 
-  const openPopup = (payload: any): void => {
+  const openPopup = (action: ComponentAction, extra?: Record<string, unknown>): void => {
+    if (!isClientIdConfigured()) {
+      setSummary('No Client Id configured: fill in userPoolClientId in src/config/config.json (see README.md).');
+      return;
+    }
+    // the request (and its state) is created in the main window,
+    // so the main window can check the result later::
+    const request = createComponentRequest(action, { param: resultParam, ...extra });
+
     // open "ourselves" in a popup, but with a payload param
     // which will be handled in the useEffect above:
-    const payloadStr = btoa(JSON.stringify(payload));
     window.open(
-      `?payload=${payloadStr}`,
+      `?payload=${encodeURIComponent(encodeComponentRequest(request))}`,
       'hub-components',
       'width=400,height=600',
     );
   }
 
   const handleSelectSubscription = () => {
-    openPopup({
-      actions: ['SELECT_SUBSCRIPTION'],
-      origin: location.href,
-      param: resultParam,
-      client_id: config.cognito.userPoolClientId,
-    });
+    openPopup('SELECT_SUBSCRIPTION');
+  };
+
+  const handleSelectHub = () => {
+    openPopup('SELECT_HUB');
   };
 
   const handleRegisterData = () => {
-    openPopup({
-      actions: ['REGISTER_RESOURCE'],
-      origin: location.href,
-      client_id: config.cognito.userPoolClientId,
-      param: resultParam,
+    openPopup('REGISTER_RESOURCE', {
       data: {
         url: 'https://some.link.to/3d-tiles/tileset.json',
         format: '3dtiles'
       }
-    });
-  };
-
-  const handleSignOut = () => {
-    openPopup({
-      actions: ['LOGOUT'],
-      origin: location.href,
-      client_id: config.cognito.userPoolClientId,
-      param: resultParam,
     });
   };
 
@@ -90,7 +93,13 @@ const ComponentsExample = () => {
         <ListItemButton onClick={handleSelectSubscription}>
           <ListItemText
             primary="Select subscription"
-            secondary="Select a subscription from Clearly.HUB for this application"
+            secondary="Select which of your subscriptions to this application to use"
+          />
+        </ListItemButton>
+        <ListItemButton onClick={handleSelectHub}>
+          <ListItemText
+            primary="Select hub"
+            secondary="Select one of your hubs to use in this application"
           />
         </ListItemButton>
         <ListItemButton onClick={handleRegisterData}>
@@ -99,21 +108,15 @@ const ComponentsExample = () => {
             secondary="Register a resource in Clearly.HUB"
           />
         </ListItemButton>
-        <Divider />
-        <ListItemButton onClick={handleSignOut}>
-          <ListItemText
-            primary="Sign out from components"
-            secondary="Sign out from Clearly.HUB components (not this application)"
-          />
-        </ListItemButton>
       </List>
 
       <Snackbar
-        open={result}
-        message={JSON.stringify(result, null, 2)}
+        open={!!summary}
+        message={summary}
         autoHideDuration={10000}
-        onClose={() => setResult(undefined)}
+        onClose={() => setSummary(undefined)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        ContentProps={{ sx: { whiteSpace: 'pre-wrap' } }}
       />
     </Paper>
   );

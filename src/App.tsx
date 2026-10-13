@@ -1,4 +1,4 @@
-import { Container, AppBar, IconButton, Typography, Toolbar } from "@mui/material";
+import { Alert, Container, AppBar, IconButton, Typography, Toolbar } from "@mui/material";
 import {
   createBrowserRouter,
   RouterProvider,
@@ -6,6 +6,7 @@ import {
 import HomeIcon from '@mui/icons-material/Home';
 
 import { routes } from './routes';
+import { isClientIdConfigured } from './config';
 import { AuthSession, fetchAuthSession } from "aws-amplify/auth";
 import React from "react";
 
@@ -50,6 +51,14 @@ const App = () => {
           )}
         </Toolbar>
       </AppBar>
+
+      {!isClientIdConfigured() && (
+        <Alert severity="warning" sx={{ m: 2 }}>
+          No Client Id configured. The authentication and components examples need the Client Id
+          of your own app client in <code>src/config/config.json</code> (<code>userPoolClientId</code>).
+          The catalog, digital twins and hubs examples work without it. See "Getting started" in README.md.
+        </Alert>
+      )}
 
       <RouterProvider router={router} />
     </Container>

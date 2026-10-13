@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import config from "../config";
 import { fetchAuthSession } from "aws-amplify/auth";

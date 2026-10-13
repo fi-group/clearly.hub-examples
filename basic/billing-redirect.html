@@ -7,31 +7,24 @@
   <title>Clearly.HUB Billing Component</title>
   <link rel="stylesheet" href="./styles.css" />
   <script src="./config.js"></script>
+  <script src="./components.js"></script>
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const result = urlParams.get(config.param); // result from the Clearly.Hub component
-
     // if we have a result, we're returning from the component.
-    // parse the result and log it::
-    if (!!result) {
-      const data = JSON.parse(atob(result));
-      console.log(data);
-      alert('Received data from component: check the console for details.');
-
-      // cleanup:: 
+    // check the result and show it::
+    const componentResult = readComponentResult();
+    if (componentResult) {
+      // cleanup::
       window.history.replaceState({}, document.title, window.location.pathname);
+
+      checkComponentResult(componentResult).then(showComponentResult);
     }
 
     const selectSubscription = () => {
-      const data = btoa(JSON.stringify({
-        actions: ['SELECT_SUBSCRIPTION'],
-        origin: location.href,
-        client_id: config.clientId,
-        param: config.param,
-      }));
+      if (!isConfigured()) return;
+      const request = createComponentRequest('SELECT_SUBSCRIPTION');
 
       // redirect to the component::
-      window.open(`${config.componentUrl}/${data}`, '_self');
+      window.open(`${config.componentUrl}/${request}`, '_self');
     };
   </script>
 </head>

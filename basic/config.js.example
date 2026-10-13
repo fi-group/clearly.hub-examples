@@ -1,5 +1,6 @@
 const config = {
   componentUrl: 'https://hub.clearly.app/components',
+  publicKeyUrl: 'https://hub.clearly.app/.well-known/public-key.pem',
   clientId: 'see README.md',
   param: 'componentresult',
 };

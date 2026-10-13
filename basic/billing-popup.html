@@ -7,14 +7,15 @@
   <title>Clearly.HUB Billing Component</title>
   <link rel="stylesheet" href="./styles.css" />
   <script src="./config.js"></script>
+  <script src="./components.js"></script>
   <script>
     // create a channel, in the popup to send messages,
     // in the main window to receive messages::
     const bc = new BroadcastChannel('clearly-hub-components');
 
     const urlParams = new URLSearchParams(window.location.search);
-    const payload = urlParams.get('payload'); // payload for the Clearly.Hub component
-    const result = urlParams.get(config.param); // result from the Clearly.Hub component
+    const payload = urlParams.get('payload'); // request for the Clearly.Hub component
+    const componentResult = readComponentResult(); // result from the Clearly.Hub component
 
     // if we have a payload, we're in the popup version of this page.
     // we need to forward to the components page:
@@ -23,10 +24,9 @@
     }
 
     // if we have a result, we're in the popup returning from the component.
-    // we need to send the result back to the main window:
-    else if (!!result) {
-      const data = JSON.parse(atob(result));
-      bc.postMessage(data);
+    // we need to send the result back to the main window, which checks it:
+    else if (componentResult) {
+      bc.postMessage(componentResult);
       window.close();
     }
 
@@ -36,24 +36,20 @@
       // we're not in the popup, but in the main window.
       // stand by to receive messages from the component::
       bc.onmessage = (event) => {
-        const { data } = event;
-        console.log(data);
-        alert('Received data from component: check the console for details.');
+        checkComponentResult(event.data).then(showComponentResult);
       };
     }
 
     const selectSubscription = () => {
-      const data = btoa(JSON.stringify({
-        actions: ['SELECT_SUBSCRIPTION'],
-        origin: location.href,
-        client_id: config.clientId,
-        param: config.param,
-      }));
+      if (!isConfigured()) return;
+      // the request (and its state) is created in the main window,
+      // so the main window can check the result later::
+      const request = createComponentRequest('SELECT_SUBSCRIPTION');
 
       // open _this_ page in a popup window
-      // and pass the payload as a query parameter::
+      // and pass the request as a query parameter::
       window.open(
-        `?payload=${data}`,
+        `?payload=${encodeURIComponent(request)}`,
         'hub-components',
         'width=400,height=600',
       );

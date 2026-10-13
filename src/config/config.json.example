@@ -6,7 +6,8 @@
     }
   },
   "components": {
-    "url": "https://hub.clearly.app/components"
+    "url": "https://hub.clearly.app/components",
+    "publicKeyUrl": "https://hub.clearly.app/.well-known/public-key.pem"
   },
   "cognito": {
     "userPoolId": "eu-central-1_1fM1Zd9mJ",

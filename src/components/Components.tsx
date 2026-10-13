@@ -1,56 +1,63 @@
-import { Paper, List, ListItemText, ListItemButton, Snackbar, Divider } from "@mui/material";
-import config from "../config";
+import { Paper, List, ListItemText, ListItemButton, Snackbar } from "@mui/material";
+import config, { isClientIdConfigured } from "../config";
 import { useSearchParams } from "react-router-dom";
 import React from "react";
+import {
+  ComponentAction,
+  checkComponentResult,
+  createComponentRequest,
+  encodeComponentRequest,
+  readComponentResult,
+  summarizeComponentResult,
+} from "./componentsHelper";
 
 const ComponentsExample = () => {
-  const [result, setResult] = React.useState<any>();
+  const [summary, setSummary] = React.useState<string>();
   const [searchParams] = useSearchParams();
+  // the result may only be checked once, because its state can only be used once::
+  const handledResult = React.useRef(false);
 
   React.useEffect(() => {
-    if (searchParams.has('data')) {
-      const data = JSON.parse(atob(searchParams.get('data')!));
-      setResult(data);
+    // if we have a result, we're returning from the component.
+    // check the result and show it::
+    const componentResult = readComponentResult(searchParams);
+    if (componentResult && !handledResult.current) {
+      handledResult.current = true;
 
-      const url = new URL(window.location.href);
-      url.searchParams.delete('data');
-      window.history.replaceState({}, '', url.toString());
+      // cleanup::
+      window.history.replaceState({}, '', window.location.pathname);
+
+      void checkComponentResult(componentResult).then((checked) => {
+        console.log('Component result:', checked);
+        setSummary(summarizeComponentResult(checked));
+      });
     }
   }, [searchParams]);
 
-  const clearResult = () => {
-    setResult(undefined);
-  }
+  const openComponent = (action: ComponentAction, extra?: Record<string, unknown>) => {
+    if (!isClientIdConfigured()) {
+      setSummary('No Client Id configured: fill in userPoolClientId in src/config/config.json (see README.md).');
+      return;
+    }
+    const request = createComponentRequest(action, extra);
+    window.open(`${config.components.url}/${encodeComponentRequest(request)}`, '_self');
+  };
+
   const handleSelectSubscription = () => {
-    const payload = btoa(JSON.stringify({
-      actions: ['SELECT_SUBSCRIPTION'],
-      origin: location.href,
-      client_id: config.cognito.userPoolClientId,
-    }));
-    window.open(`${config.components.url}/${payload}`, '_self')
+    openComponent('SELECT_SUBSCRIPTION');
+  };
+
+  const handleSelectHub = () => {
+    openComponent('SELECT_HUB');
   };
 
   const handleRegisterData = () => {
-    const payload = btoa(JSON.stringify({
-      actions: ['REGISTER_RESOURCE'],
-      origin: location.href,
-      client_id: config.cognito.userPoolClientId,
+    openComponent('REGISTER_RESOURCE', {
       data: {
         url: 'https://some.link.to/3d-tiles/tileset.json',
         format: '3dtiles',
       },
-    }));
-    window.open(`${config.components.url}/${payload}`, '_self')
-  };
-
-
-  const handleSignOut = () => {
-    const payload = btoa(JSON.stringify({
-      actions: ['LOGOUT'],
-      origin: location.href,
-      client_id: config.cognito.userPoolClientId,
-    }));
-    window.open(`${config.components.url}/${payload}`, '_self')
+    });
   };
 
   return (
@@ -59,7 +66,13 @@ const ComponentsExample = () => {
         <ListItemButton onClick={handleSelectSubscription}>
           <ListItemText
             primary="Select subscription"
-            secondary="Select a subscription from Clearly.HUB for this application"
+            secondary="Select which of your subscriptions to this application to use"
+          />
+        </ListItemButton>
+        <ListItemButton onClick={handleSelectHub}>
+          <ListItemText
+            primary="Select hub"
+            secondary="Select one of your hubs to use in this application"
           />
         </ListItemButton>
         <ListItemButton onClick={handleRegisterData}>
@@ -68,21 +81,15 @@ const ComponentsExample = () => {
             secondary="Register a resource in Clearly.HUB"
           />
         </ListItemButton>
-        <Divider />
-        <ListItemButton onClick={handleSignOut}>
-          <ListItemText
-            primary="Sign out from components"
-            secondary="Sign out from Clearly.HUB components (not this application)"
-          />
-        </ListItemButton>
       </List>
 
       <Snackbar
-        open={result}
-        message={JSON.stringify(result, null, 2)}
-        autoHideDuration={3000}
-        onClose={clearResult}
+        open={!!summary}
+        message={summary}
+        autoHideDuration={10000}
+        onClose={() => setSummary(undefined)}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        ContentProps={{ sx: { whiteSpace: 'pre-wrap' } }}
       />
     </Paper>
   );
